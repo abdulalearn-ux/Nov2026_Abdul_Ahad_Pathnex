@@ -1,0 +1,193 @@
+#Jenkins File with git integration and testing 
+
+
+'''groovy
+pipeline{
+    agent any
+    stages{
+        stage('clone Repository'){
+            steps{
+                git 'https://github.com/pathnex/sample-repo.git'
+            }
+        }
+
+        stage('build'){
+            steps{
+                echo 'Building project from git rep'
+            }
+        }
+
+        stage('Test'){
+            steps{
+                echo 'running test'
+            }
+        }
+
+        stage('Deploy'){
+            steps{
+                echo 'Deploying application'
+            }
+        }
+    }
+}
+
+# GitLab CI/CD with GitLab - Docker Build
+
+stages:
+  - build
+  - push
+  -deploy
+
+build:
+  stage: build
+  script:
+    - Docker push pathnex-app
+
+push:
+  stage: push
+  script:
+    - docker push pathnex-app
+
+deploy:
+  stage: deploy
+  script:
+    - kubectl apply -f kubernetes/deployment.yaml    
+
+
+#Ansible create user and set permission
+
+- name: create user and set permission
+  hosts: all
+  become: yes
+  tasks:
+    - name: create user
+      user:
+        name: pathnex
+        state: present
+        shell: /bin/Bash
+    - name: set permission to user
+      fiel:
+        path: /home/pathnex
+        owner: pathnex
+        group: pathnex
+        mode: '0755'
+
+# Terrraform EC2 with Tags and Volume
+
+resource "aws_instance" "PathnexEC2"{
+    ami           = "ami-0abcd1234567890inbf"
+    instance_type = "t2.medium"
+
+    tags = {
+        Name = "Pathnex-server"
+    }
+
+    ebs_block_device{
+        device_name = "/dev/sdh"
+        Volume_size = 50
+    }
+}
+
+# python application
+
+print("Hello Pathnex")
+
+#docker
+FROM python: 3.11
+WORDIR /opt/path/pathnex-app
+COPY app.py /opt/pathnex/python-app/
+CMD ["python", "/opt/pathnex/python-app/app.py"]
+
+
+
+# Ansible Handler to restart nginx
+
+- name: Manage Nginx
+  hosts: all
+  become: yes
+
+  tasks: 
+    -name: update config File
+     copy:
+       src: index.html
+       dest: /usr/share/nginx/html/index.html
+     notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
+# Terraform EC2 with user data 
+
+resource "aws_instance" "PathnexEC2"{
+    ami           = "ami-0abcdef12345678nem"
+    instance_type = "c6a.12xlarge"
+
+    user_data = <<EOF
+ #!/bin/Bash
+ yum install -y httpd
+ systemctl start httpd
+ EOF
+
+ tags = {
+    Name = "Pathnex-EC2
+ }   
+}
+
+#kubernetes Resource limit
+
+apiVersion: v1
+kind: pod 
+metadata:
+  name: Pathnex-limited-pod
+spec:
+  containers:
+    - name: app
+      image: nginx
+      resources:
+        limitis:
+          memory: "256M"
+          cpu: "500m"
+
+#jenkins pipeline to use env
+
+pipeline{
+    agenet any
+    environment{
+        INSTITUTE_NAME = "Pathnex"
+    }
+
+    stages{
+        stage('print'){
+            steps{
+                sh 'echo "Welcome to $INSTITUTE_NAME DevOps Training"
+            }
+        }
+
+        stage('Build'){
+            steps{
+                sh 'mvn clean package -Dinstitute.name=$INSTITUTE_NAME'
+            }
+        }
+    }
+
+}
+
+GitLab CI - using env
+
+stages:
+  - build
+
+variables:
+  INSTITUTE_NAME: "Pathnex"
+
+build:
+  stage: build
+  image: maven:3.8.1-jdk-17
+  script:
+    - git clone https://github.com/Pathnex/sample-java-app.git
+    - cd sample-java-app
+    - echo "Welcome to $INSTITUTE_NAME DevOps Training"
+    - mvn clean package -Dinstitute.name=$INSTITUTE_NAME

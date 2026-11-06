@@ -1,0 +1,3 @@
+# What I did today
+#1. Revised  AWS concepts and practical implementation  - 2 hr
+#2. Practiced coding and pushed the code to GitHub - 1 hr
